@@ -7,27 +7,30 @@
 
 # Make this script executable chmod a+x netcheck.sh
 # Add one of the following lines to /etc/crontab
-# */10 *   * * *   root    sudo /home/pi/netcheck.sh >> /home/pi/netchecklog.log
-# */10 *   * * *   root    sudo /home/pi/netcheck.sh >/dev/null 2>&1
+# */10 *   * * *   root    sudo $installdir/netcheck.sh >> /home/pi/netchecklog.log
+# */10 *   * * *   root    sudo $installdir/netcheck.sh >/dev/null 2>&1
 
 # Script to monitor and restart wireless access point when needed
 echo Checking network connection
 maxPloss=50 #Maximum percent packet loss before a restart
+installdir="/home/pi/git/rpiscripts"
+testurl="www.google.com"
+netiface="wlan0"
 
 restart_networking() {
         # Add any commands need to get network back up and running
-        date >> /home/pi/netcheckout.txt
+        date >> $installdir/netcheckout.txt
         #/etc/init.d/networking restart
         echo RESTART NETWORK
         #shutdown -r "now"
-        ifdown --force wlan0
-        ifup wlan0
+        ifdown --force $netiface
+        ifup $netiface
         #only needed if your running a wireless ap
         #/etc/init.d/dhcp3-server restart
 }
 
 # First make sure we can resolve google, otherwise 'ping -w' would hang
-if ! $(host -W5 www.google.com > /dev/null 2>&1); then
+if ! $(host -W5 $testurl > /dev/null 2>&1); then
         #Make a note in syslog
         logger "netcheck: Network connection is down, DNS lookup failed, restarting network ..."
         restart_networking
@@ -41,7 +44,7 @@ fi
 # (just in case ping gives an error and ploss doesn't get set)
 ploss=101
 # now ping google for 10 seconds and count packet loss
-ploss=$(ping -q -w10 www.google.com | grep -o "[0-9]*%" | tr -d %) > /dev/null 2>&1
+ploss=$(ping -q -w10 $testurl | grep -o "[0-9]*%" | tr -d %) > /dev/null 2>&1
 
 if [ "$ploss" -gt "$maxPloss" ]; then
         logger "netcheck: Packet loss ($ploss%) exceeded $maxPloss, restarting network ..."
