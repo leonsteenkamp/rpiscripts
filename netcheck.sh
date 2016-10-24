@@ -6,9 +6,9 @@
 # sudo apt-get install host
 
 # Make this script executable chmod a+x netcheck.sh
-# Add one of the following lines to /etc/crontab
-# */10 *   * * *   root    sudo $installdir/netcheck.sh >> /home/pi/netchecklog.log
-# */10 *   * * *   root    sudo $installdir/netcheck.sh >/dev/null 2>&1
+# Add one of the following lines to /etc/crontab and replace INSTALLDIR
+# */10 *   * * *   root    sudo INSTALLDIR/netcheck.sh >> INSTALLDIR/netchecklog.log
+# */10 *   * * *   root    sudo INSTALLDIR/netcheck.sh >/dev/null 2>&1
 
 # Script to monitor and restart wireless access point when needed
 echo Checking network connection
